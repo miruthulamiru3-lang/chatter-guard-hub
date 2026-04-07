@@ -5,32 +5,26 @@ interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string, role: string) => Promise<void>;
   logout: () => void;
-  setDemoUser: (role: 'user' | 'admin') => void;
+  setDemoUser: (role: 'user' | 'admin' | 'moderator') => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Demo users for frontend-only mode
 const demoUsers: Record<string, User> = {
   admin: {
-    _id: 'admin-001',
-    name: 'Admin User',
-    email: 'admin@example.com',
-    role: 'admin',
-    avatar: '',
-    status: 'online',
-    lastSeen: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
+    _id: 'admin-001', name: 'Admin User', email: 'admin@example.com', role: 'admin',
+    avatar: '', status: 'online', lastSeen: new Date().toISOString(), lastActive: new Date().toISOString(),
+    riskScore: 0, isBlocked: false, createdAt: new Date().toISOString(),
+  },
+  moderator: {
+    _id: 'mod-001', name: 'Mod User', email: 'mod@example.com', role: 'moderator',
+    avatar: '', status: 'online', lastSeen: new Date().toISOString(), lastActive: new Date().toISOString(),
+    riskScore: 0, isBlocked: false, createdAt: new Date().toISOString(),
   },
   user: {
-    _id: 'user-001',
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: 'user',
-    avatar: '',
-    status: 'online',
-    lastSeen: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
+    _id: 'user-001', name: 'John Doe', email: 'john@example.com', role: 'user',
+    avatar: '', status: 'online', lastSeen: new Date().toISOString(), lastActive: new Date().toISOString(),
+    riskScore: 0, isBlocked: false, createdAt: new Date().toISOString(),
   },
 };
 
@@ -38,57 +32,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>(() => {
     const stored = localStorage.getItem('auth');
     if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch {
-        return { user: null, token: null, isAuthenticated: false };
-      }
+      try { return JSON.parse(stored); } catch { return { user: null, token: null, isAuthenticated: false }; }
     }
     return { user: null, token: null, isAuthenticated: false };
   });
 
   useEffect(() => {
-    if (authState.isAuthenticated) {
-      localStorage.setItem('auth', JSON.stringify(authState));
-    } else {
-      localStorage.removeItem('auth');
-    }
+    if (authState.isAuthenticated) localStorage.setItem('auth', JSON.stringify(authState));
+    else localStorage.removeItem('auth');
   }, [authState]);
 
-  const login = async (email: string, password: string) => {
-    // In demo mode, we simulate login
-    const role = email.includes('admin') ? 'admin' : 'user';
-    setAuthState({
-      user: demoUsers[role],
-      token: 'demo-token',
-      isAuthenticated: true,
-    });
+  const login = async (email: string, _password: string) => {
+    const role = email.includes('admin') ? 'admin' : email.includes('mod') ? 'moderator' : 'user';
+    setAuthState({ user: demoUsers[role], token: 'demo-token', isAuthenticated: true });
   };
 
-  const register = async (name: string, email: string, password: string, role: string) => {
+  const register = async (name: string, email: string, _password: string, role: string) => {
     const user: User = {
-      _id: `user-${Date.now()}`,
-      name,
-      email,
-      role: role as 'user' | 'admin',
-      avatar: '',
-      status: 'online',
-      lastSeen: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
+      _id: `user-${Date.now()}`, name, email, role: role as User['role'],
+      avatar: '', status: 'online', lastSeen: new Date().toISOString(), lastActive: new Date().toISOString(),
+      riskScore: 0, isBlocked: false, createdAt: new Date().toISOString(),
     };
     setAuthState({ user, token: 'demo-token', isAuthenticated: true });
   };
 
-  const logout = () => {
-    setAuthState({ user: null, token: null, isAuthenticated: false });
-  };
+  const logout = () => setAuthState({ user: null, token: null, isAuthenticated: false });
 
-  const setDemoUser = (role: 'user' | 'admin') => {
-    setAuthState({
-      user: demoUsers[role],
-      token: 'demo-token',
-      isAuthenticated: true,
-    });
+  const setDemoUser = (role: 'user' | 'admin' | 'moderator') => {
+    setAuthState({ user: demoUsers[role], token: 'demo-token', isAuthenticated: true });
   };
 
   return (

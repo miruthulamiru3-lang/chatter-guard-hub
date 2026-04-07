@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { User } from '@/types';
+import { User, Group } from '@/types';
 import { demoContacts } from '@/data/demoData';
 import Header from '@/components/Header';
 import ChatSidebar from '@/components/ChatSidebar';
 import ChatWindow from '@/components/ChatWindow';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Users } from 'lucide-react';
 
 export default function ChatPage() {
   const { user } = useAuth();
   const [selectedContact, setSelectedContact] = useState<User | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
 
   const contacts = demoContacts.filter(c => c._id !== user?._id);
+
+  const handleSelectContact = (contact: User) => {
+    setSelectedContact(contact);
+    setSelectedGroup(null);
+  };
+
+  const handleSelectGroup = (group: Group) => {
+    setSelectedGroup(group);
+    setSelectedContact(null);
+  };
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -20,16 +31,26 @@ export default function ChatPage() {
         <ChatSidebar
           contacts={contacts}
           selectedContact={selectedContact}
-          onSelectContact={setSelectedContact}
+          onSelectContact={handleSelectContact}
+          selectedGroup={selectedGroup}
+          onSelectGroup={handleSelectGroup}
         />
         {selectedContact ? (
           <ChatWindow contact={selectedContact} />
+        ) : selectedGroup ? (
+          <div className="flex-1 flex items-center justify-center bg-background">
+            <div className="text-center text-muted-foreground">
+              <Users className="h-16 w-16 mx-auto mb-4 opacity-30" />
+              <p className="text-lg font-medium">{selectedGroup.groupName}</p>
+              <p className="text-sm mt-1">{selectedGroup.members.length} members • Group chat UI ready for backend</p>
+            </div>
+          </div>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-background">
             <div className="text-center text-muted-foreground">
               <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-30" />
               <p className="text-lg font-medium">Select a conversation</p>
-              <p className="text-sm mt-1">Choose a contact to start chatting</p>
+              <p className="text-sm mt-1">Choose a contact or group to start chatting</p>
             </div>
           </div>
         )}

@@ -8,7 +8,7 @@ const Index = () => {
   const { isAuthenticated, user } = useAuth();
 
   if (!isAuthenticated) return <LoginPage />;
-  if (user?.role === 'admin') return <AdminDashboard />;
+  if (user?.role === 'admin' || user?.role === 'moderator') return <AdminDashboard />;
   return <ChatPage />;
 };
 

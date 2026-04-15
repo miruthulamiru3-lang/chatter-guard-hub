@@ -35,7 +35,7 @@ export default function ChatWindow({ contact }: ChatWindowProps) {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (user && contact) setMessages(getDemoMessages(user._id, contact._id));
+    if (user && contact) setMessages([]);
   }, [user, contact]);
 
   useEffect(() => {

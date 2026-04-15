@@ -4,7 +4,6 @@ import { Search, Users, MessageSquare, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import UserAvatar from '@/components/UserAvatar';
-import { demoGroups } from '@/data/demoData';
 
 interface ChatSidebarProps {
   contacts: User[];
@@ -21,10 +20,6 @@ export default function ChatSidebar({ contacts, selectedContact, onSelectContact
   const filtered = contacts.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.email.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const filteredGroups = demoGroups.filter(g =>
-    g.groupName.toLowerCase().includes(search.toLowerCase())
   );
 
   const statusColor = (status: string) =>
@@ -87,10 +82,10 @@ export default function ChatSidebar({ contacts, selectedContact, onSelectContact
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium text-foreground truncate">{contact.name}</p>
-                    {contact.riskScore >= 10 && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive font-medium">
-                        Risk: {contact.riskScore}
-                      </span>
+                    {contact.role !== 'user' && (
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                        contact.role === 'admin' ? 'bg-primary/10 text-primary' : 'bg-warning/10 text-warning'
+                      }`}>{contact.role}</span>
                     )}
                   </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
@@ -101,7 +96,9 @@ export default function ChatSidebar({ contacts, selectedContact, onSelectContact
               </button>
             ))}
             {filtered.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground py-8">No contacts found</p>
+              <p className="text-center text-sm text-muted-foreground py-8">
+                {contacts.length === 0 ? 'No registered users yet' : 'No contacts found'}
+              </p>
             )}
           </>
         ) : (
@@ -111,23 +108,7 @@ export default function ChatSidebar({ contacts, selectedContact, onSelectContact
                 <Plus className="h-3.5 w-3.5" /> Create Group
               </Button>
             </div>
-            {filteredGroups.map(group => (
-              <button
-                key={group._id}
-                onClick={() => onSelectGroup(group)}
-                className={`w-full flex items-center gap-3 p-3 text-left transition-colors hover:bg-secondary/50 ${
-                  selectedGroup?._id === group._id ? 'bg-secondary' : ''
-                }`}
-              >
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <Users className="h-5 w-5 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{group.groupName}</p>
-                  <p className="text-xs text-muted-foreground truncate">{group.members.length} members</p>
-                </div>
-              </button>
-            ))}
+            <p className="text-center text-sm text-muted-foreground py-8">No groups yet</p>
           </>
         )}
       </div>

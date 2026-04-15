@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { getAllDemoMessages } from '@/data/demoData';
 import UserAvatar from '@/components/UserAvatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Trash2, Flag, AlertTriangle, History } from 'lucide-react';
+import { Message } from '@/types';
 
 export default function AdminMessages() {
   const [messageFilter, setMessageFilter] = useState('');
   const [showFlaggedOnly, setShowFlaggedOnly] = useState(false);
-  const [messages, setMessages] = useState(getAllDemoMessages());
+  const [messages, setMessages] = useState<Message[]>([]);
   const [historyView, setHistoryView] = useState<{ message: string; editedAt: string }[] | null>(null);
 
   const filtered = messages.filter(m => {
@@ -34,7 +34,6 @@ export default function AdminMessages() {
         </Button>
       </div>
 
-      {/* History modal */}
       {historyView && (
         <div className="fixed inset-0 bg-background/80 z-50 flex items-center justify-center" onClick={() => setHistoryView(null)}>
           <div className="bg-card border rounded-xl p-4 w-80 max-h-64 overflow-y-auto shadow-lg" onClick={e => e.stopPropagation()}>
@@ -50,6 +49,11 @@ export default function AdminMessages() {
       )}
 
       <div className="space-y-2">
+        {filtered.length === 0 && (
+          <p className="text-center text-muted-foreground py-8">
+            {messages.length === 0 ? 'No messages to monitor yet. Messages will appear here once users start chatting.' : 'No messages match your filters'}
+          </p>
+        )}
         {filtered.map(msg => (
           <div key={msg._id} className={`bg-card border rounded-xl p-3 flex items-start gap-3 ${msg.flagged ? 'border-destructive/50 bg-destructive/5' : ''}`}>
             <UserAvatar name={msg.sender.name} size="sm" />
@@ -79,7 +83,6 @@ export default function AdminMessages() {
             </div>
           </div>
         ))}
-        {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">No messages found</p>}
       </div>
     </div>
   );

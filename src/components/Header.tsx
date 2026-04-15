@@ -3,14 +3,13 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Moon, Sun, LogOut, MessageSquare, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { demoNotifications } from '@/data/demoData';
 import type { Notification } from '@/types';
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const [showNotifs, setShowNotifs] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>(demoNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -37,7 +36,6 @@ export default function Header() {
         {user && (
           <span className="text-sm text-muted-foreground hidden sm:inline mr-2">{user.name}</span>
         )}
-        {/* Notifications */}
         <div className="relative">
           <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => setShowNotifs(!showNotifs)}>
             <Bell className="h-5 w-5" />
@@ -54,7 +52,9 @@ export default function Header() {
                 <span className="text-xs text-muted-foreground">{unreadCount} unread</span>
               </div>
               <div className="max-h-64 overflow-y-auto scrollbar-thin">
-                {notifications.map(n => (
+                {notifications.length === 0 ? (
+                  <p className="text-center text-sm text-muted-foreground py-6">No notifications yet</p>
+                ) : notifications.map(n => (
                   <button
                     key={n._id}
                     onClick={() => markRead(n._id)}

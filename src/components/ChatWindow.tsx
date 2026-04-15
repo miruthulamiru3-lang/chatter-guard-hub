@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User, Message, EditHistoryEntry } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { getDemoMessages } from '@/data/demoData';
+
 import UserAvatar from '@/components/UserAvatar';
 import { Send, Paperclip, Search, Check, CheckCheck, X, Edit2, Trash2, MoreVertical, History, Download, FileText } from 'lucide-react';
 import { Input } from '@/components/ui/input';

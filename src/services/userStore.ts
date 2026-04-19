@@ -120,3 +120,28 @@ export function updateUserRole(userId: string, role: string) {
     saveUsers(users);
   }
 }
+
+export function resetPassword(email: string, newPassword: string): void {
+  if (newPassword.length < 6) {
+    throw new Error('Password must be at least 6 characters');
+  }
+
+  const users = getStoredUsers();
+  const idx = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
+
+  if (idx < 0) {
+    throw new Error('No account found with this email address');
+  }
+
+  if (users[idx].isBlocked) {
+    throw new Error('This account is blocked. Contact an administrator.');
+  }
+
+  users[idx].passwordHash = simpleHash(newPassword);
+  saveUsers(users);
+}
+
+export function emailExists(email: string): boolean {
+  const users = getStoredUsers();
+  return users.some(u => u.email.toLowerCase() === email.toLowerCase());
+}

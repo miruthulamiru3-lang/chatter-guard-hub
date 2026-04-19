@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { getAllRegisteredUsers, blockUser } from '@/services/userStore';
+import React, { useEffect, useState } from 'react';
+import { usersApi } from '@/services/api';
+import { User } from '@/types';
 import UserAvatar from '@/components/UserAvatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,18 +8,27 @@ import { Search, Ban, ShieldCheck } from 'lucide-react';
 
 export default function AdminUsers() {
   const [search, setSearch] = useState('');
-  const [users, setUsers] = useState(getAllRegisteredUsers());
+  const [users, setUsers] = useState<User[]>([]);
+
+  const refresh = () => {
+    usersApi.getAll()
+      .then(({ data }) => setUsers(data))
+      .catch(err => console.error('Failed to load users:', err));
+  };
+
+  useEffect(() => { refresh(); }, []);
 
   const filtered = users.filter(u =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  const toggleBlock = (id: string) => {
-    const user = users.find(u => u._id === id);
-    if (user) {
-      blockUser(id, !user.isBlocked);
-      setUsers(getAllRegisteredUsers());
+  const toggleBlock = async (id: string) => {
+    try {
+      await usersApi.block(id);
+      refresh();
+    } catch (err) {
+      console.error('Failed to toggle block:', err);
     }
   };
 

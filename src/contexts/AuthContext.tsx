@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState } from '@/types';
-import { loginUser, registerUser, validateSecurityCode } from '@/services/userStore';
+import { authApi } from '@/services/api';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
@@ -24,22 +24,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     else localStorage.removeItem('auth');
   }, [authState]);
 
+  const extractError = (err: any) =>
+    err?.response?.data?.message || err?.response?.data?.error || err?.message || 'Request failed';
+
   const login = async (email: string, password: string) => {
-    const user = loginUser(email, password);
-    const token = `token_${user._id}_${Date.now()}`;
-    setAuthState({ user, token, isAuthenticated: true });
+    try {
+      const { data } = await authApi.login(email, password);
+      setAuthState({ user: data.user, token: data.token, isAuthenticated: true });
+    } catch (err: any) {
+      throw new Error(extractError(err));
+    }
   };
 
   const register = async (name: string, email: string, password: string, role: string, securityCode?: string) => {
-    // Validate security code for admin/moderator
-    if (role === 'admin' || role === 'moderator') {
-      const validation = validateSecurityCode(role, securityCode || '');
-      if (!validation.valid) throw new Error(validation.error);
+    try {
+      // Backend validates the security code for admin/moderator
+      const { data } = await authApi.register(name, email, password, role, securityCode);
+      setAuthState({ user: data.user, token: data.token, isAuthenticated: true });
+    } catch (err: any) {
+      throw new Error(extractError(err));
     }
-
-    const user = registerUser(name, email, password, role);
-    const token = `token_${user._id}_${Date.now()}`;
-    setAuthState({ user, token, isAuthenticated: true });
   };
 
   const logout = () => setAuthState({ user: null, token: null, isAuthenticated: false });

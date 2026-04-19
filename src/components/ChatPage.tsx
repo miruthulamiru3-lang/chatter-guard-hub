@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, Group } from '@/types';
-import { getAllRegisteredUsers } from '@/services/userStore';
+import { usersApi } from '@/services/api';
 import Header from '@/components/Header';
 import ChatSidebar from '@/components/ChatSidebar';
 import ChatWindow from '@/components/ChatWindow';
@@ -11,10 +11,12 @@ export default function ChatPage() {
   const { user } = useAuth();
   const [selectedContact, setSelectedContact] = useState<User | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+  const [contacts, setContacts] = useState<User[]>([]);
 
-  // Get all registered users except self
-  const contacts = useMemo(() => {
-    return getAllRegisteredUsers().filter(c => c._id !== user?._id);
+  useEffect(() => {
+    usersApi.getAll()
+      .then(({ data }) => setContacts(data.filter(c => c._id !== user?._id)))
+      .catch(err => console.error('Failed to load users from backend:', err));
   }, [user]);
 
   const handleSelectContact = (contact: User) => {

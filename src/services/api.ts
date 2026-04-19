@@ -38,8 +38,8 @@ export const authApi = {
   login: (email: string, password: string) =>
     api.post<{ token: string; user: User }>('/auth/login', { email, password }),
 
-  register: (name: string, email: string, password: string, role: string) =>
-    api.post<{ token: string; user: User }>('/auth/register', { name, email, password, role }),
+  register: (name: string, email: string, password: string, role: string, securityCode?: string) =>
+    api.post<{ token: string; user: User }>('/auth/register', { name, email, password, role, securityCode }),
 };
 
 // ── Users ─────────────────────────────────────

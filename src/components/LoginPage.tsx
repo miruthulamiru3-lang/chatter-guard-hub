@@ -4,10 +4,11 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MessageSquare, Moon, Sun, Shield, User, Eye, Lock, ArrowLeft, KeyRound, CheckCircle2 } from 'lucide-react';
+import { MessageSquare, Moon, Sun, Shield, User, Eye, Lock, ArrowLeft, KeyRound, CheckCircle2, Sparkles, Loader2 } from 'lucide-react';
 // Password reset is handled by the backend (POST /api/auth/forgot-password + /api/auth/reset-password).
 // The localStorage helpers below are kept only as a fallback if the backend isn't running yet.
 import { resetPassword, emailExists } from '@/services/userStore';
+import { seedDemoData, DEMO_ACCOUNTS, isDemoSeeded } from '@/services/demoSeeder';
 
 type Mode = 'login' | 'register' | 'forgot';
 

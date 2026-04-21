@@ -29,6 +29,46 @@ export default function LoginPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Demo data state
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoMessage, setDemoMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(
+    isDemoSeeded() ? { type: 'success', text: 'Demo data already loaded — pick an account below.' } : null
+  );
+
+  const handleSeedDemo = async () => {
+    setDemoLoading(true);
+    setDemoMessage(null);
+    try {
+      const res = await seedDemoData();
+      const parts = [
+        `${res.accountsCreated} account(s) created`,
+        res.accountsExisted > 0 && `${res.accountsExisted} already existed`,
+        `${res.messagesSeeded} messages seeded`,
+      ].filter(Boolean);
+      setDemoMessage({
+        type: res.errors.length === DEMO_ACCOUNTS.length ? 'error' : 'success',
+        text: parts.join(' • ') + (res.errors.length ? ` (${res.errors.length} errors)` : ''),
+      });
+    } catch (err: any) {
+      setDemoMessage({ type: 'error', text: err.message || 'Demo seeding failed — is the backend running?' });
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
+  const handleDemoLogin = async (acc: typeof DEMO_ACCOUNTS[number]) => {
+    setError('');
+    setLoading(true);
+    try {
+      await login(acc.email, acc.password);
+    } catch (err: any) {
+      setError(err.message || 'Demo sign-in failed. Click "Load Demo Data" first.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   const resetFormState = () => {
     setError('');
     setName('');

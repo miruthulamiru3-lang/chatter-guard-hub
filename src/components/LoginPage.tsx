@@ -341,6 +341,71 @@ export default function LoginPage() {
                     {mode === 'register' ? 'Sign In' : 'Register'}
                   </button>
                 </p>
+
+                {mode === 'login' && (
+                  <div className="mt-6 pt-4 border-t border-border">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-semibold text-foreground">Try the Demo</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Seed sample users, conversations, and flagged messages, then sign in with one click.
+                    </p>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full mb-3"
+                      onClick={handleSeedDemo}
+                      disabled={demoLoading}
+                    >
+                      {demoLoading ? (
+                        <><Loader2 className="h-3 w-3 mr-2 animate-spin" /> Loading demo data...</>
+                      ) : (
+                        <>{isDemoSeeded() ? 'Re-seed Demo Data' : 'Load Demo Data'}</>
+                      )}
+                    </Button>
+
+                    {demoMessage && (
+                      <div
+                        className={`text-xs rounded-lg px-3 py-2 mb-3 border ${
+                          demoMessage.type === 'success'
+                            ? 'bg-primary/5 border-primary/20 text-foreground'
+                            : 'bg-destructive/10 border-destructive/20 text-destructive'
+                        }`}
+                      >
+                        {demoMessage.text}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-3 gap-2">
+                      {DEMO_ACCOUNTS.slice(0, 3).map(acc => {
+                        const meta =
+                          acc.role === 'admin'
+                            ? { icon: <Shield className="h-3 w-3" />, label: 'Admin' }
+                            : acc.role === 'moderator'
+                            ? { icon: <Eye className="h-3 w-3" />, label: 'Moderator' }
+                            : { icon: <User className="h-3 w-3" />, label: 'User' };
+                        return (
+                          <button
+                            key={acc.email}
+                            type="button"
+                            onClick={() => handleDemoLogin(acc)}
+                            disabled={loading || demoLoading}
+                            className="py-2 px-2 rounded-lg border border-border bg-secondary text-secondary-foreground text-xs font-medium transition-colors hover:bg-primary hover:text-primary-foreground hover:border-primary disabled:opacity-50 flex flex-col items-center gap-1"
+                          >
+                            {meta.icon}
+                            {meta.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-2 text-center">
+                      Password for all demo accounts: <code className="font-mono">demo1234</code>
+                    </p>
+                  </div>
+                )}
               </>
             )}
           </div>
